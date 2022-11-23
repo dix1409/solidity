@@ -4,7 +4,12 @@ require("dotenv").config();
 async function main() {
   //  http://127.0.0.1:7545
   const provider = new ether.providers.JsonRpcProvider(process.env.RPC_URL);
-  const wallet = new ether.Wallet(process.env.PRIVATE_KEY, provider);
+  const encryptedJSONkey = fs.readFileSync("./.encryptedKey.json", "utf-8");
+  let wallet = new ether.Wallet.fromEncryptedJsonSync(
+    encryptedJSONkey,
+    process.env.PASSWORD
+  );
+  wallet = await wallet.connect(provider);
   const abi = fs.readFileSync("./FundMe_sol_FundMe.abi", "utf-8");
   const bin = fs.readFileSync("./FundMe_sol_FundMe.bin", "utf-8");
   const contactFactory = new ether.ContractFactory(abi, bin, wallet);
